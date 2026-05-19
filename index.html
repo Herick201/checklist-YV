@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Buen Vendedor</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE8;
+    --border: #E2DFD6;
+    --border-strong: #C8C4B8;
+    --text: #1A1916;
+    --text-muted: #8A877E;
+    --text-light: #B5B2A9;
+    --accent: #1D9E75;
+    --accent-light: #E1F5EE;
+    --accent-dark: #0F6E56;
+    --warn: #E24B4A;
+    --warn-light: #FCEBEB;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-logo {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .topbar-logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .topbar-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .topbar-sub { font-size: 13px; color: var(--text-muted); margin-left: auto; font-family: 'DM Mono', monospace; }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 0; min-height: calc(100vh - 57px); }
+
+  /* LEFT PANEL */
+  .left { padding: 32px; overflow-y: auto; }
+
+  /* EMAIL FIELD */
+  .email-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .email-block label { font-size: 13px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+  .email-block input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 9px 14px;
+    font-size: 14px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .email-block input:focus { border-color: var(--accent); background: white; }
+  .email-block input.error { border-color: var(--warn); background: var(--warn-light); }
+
+  /* SECTIONS */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+  .section:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .section.all-done { border-color: var(--accent); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--surface);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+  }
+  .section.all-done .section-header { background: var(--accent-light); border-bottom-color: #9FE1CB; }
+
+  .section-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+  .section.all-done .section-icon { background: var(--accent); }
+  .section.all-done .section-icon svg { stroke: white; }
+
+  .section-icon svg { width: 16px; height: 16px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .section-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .section-badge {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    background: var(--surface2);
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+  .section.all-done .section-badge { background: var(--accent); color: white; border-color: var(--accent); }
+
+  .mark-all-btn {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .mark-all-btn:hover { color: var(--accent); background: var(--accent-light); }
+  .section.all-done .mark-all-btn { color: var(--accent-dark); }
+
+  .items-list { padding: 8px 0; }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .item:hover { background: var(--bg); }
+  .item.checked .item-text { color: var(--text-muted); text-decoration: line-through; }
+
+  .cb {
+    width: 20px; height: 20px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+    background: white;
+  }
+  .item:hover .cb { border-color: var(--accent); }
+  .item.checked .cb { background: var(--accent); border-color: var(--accent); }
+  .item.checked .cb::after {
+    content: '';
+    display: block;
+    width: 11px; height: 7px;
+    border-left: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(-45deg) translateY(-2px);
+  }
+  .item-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+
+  /* RIGHT PANEL */
+  .right {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 57px;
+    height: calc(100vh - 57px);
+    overflow-y: auto;
+  }
+
+  .panel-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+  /* PROGRESS RING */
+  .ring-wrap { display: flex; align-items: center; gap: 20px; }
+  .ring-container { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+  .ring-container svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: var(--border); stroke-width: 6; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.4s ease; }
+  .ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .ring-info { }
+  .ring-info .big { font-size: 22px; font-weight: 600; }
+  .ring-info .small { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  /* SECTION STATUS */
+  .status-list { display: flex; flex-direction: column; gap: 6px; }
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 1px solid transparent;
+    transition: all 0.2s;
+  }
+  .status-row.done { background: var(--accent-light); border-color: #9FE1CB; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-strong); flex-shrink: 0; }
+  .status-row.done .status-dot { background: var(--accent); }
+  .status-name { font-size: 13px; flex: 1; color: var(--text-muted); }
+  .status-row.done .status-name { color: var(--accent-dark); font-weight: 500; }
+  .status-frac { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text-light); }
+  .status-row.done .status-frac { color: var(--accent); }
+
+  /* SEND BUTTON */
+  .send-wrap { margin-top: auto; }
+  .send-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius);
+    border: none;
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: not-allowed;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .send-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .send-btn.ready {
+    background: var(--accent);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(29,158,117,0.3);
+  }
+  .send-btn.ready:hover { background: var(--accent-dark); box-shadow: 0 6px 20px rgba(29,158,117,0.4); transform: translateY(-1px); }
+  .send-btn.ready:active { transform: translateY(0); }
+  .send-btn.sending { background: var(--accent); color: white; cursor: wait; opacity: 0.8; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .hint-text { font-size: 12px; color: var(--text-light); text-align: center; margin-top: 10px; line-height: 1.5; }
+
+  /* SUCCESS OVERLAY */
+  .success-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(247,246,242,0.92);
+    z-index: 999;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+    backdrop-filter: blur(4px);
+  }
+  .success-overlay.show { display: flex; }
+  .success-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 48px;
+    text-align: center;
+    max-width: 380px;
+  }
+  .success-icon {
+    width: 64px; height: 64px;
+    background: var(--accent-light);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .success-icon svg { width: 30px; height: 30px; stroke: var(--accent); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+  .success-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+  .success-sub { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+  .success-email { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--accent-dark); background: var(--accent-light); padding: 4px 10px; border-radius: 4px; display: inline-block; margin: 8px 0; }
+  .new-btn {
+    margin-top: 24px;
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    color: var(--text);
+  }
+  .new-btn:hover { background: var(--surface2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+  </div>
+  <div class="topbar-title">Checklist · Buen Vendedor</div>
+  <div class="topbar-sub" id="topbar-date"></div>
+</div>
+
+<div class="layout">
+  <div class="left">
+
+    <div class="email-block">
+      <label>Email del cliente</label>
+      <input type="email" id="client-email" placeholder="cliente@empresa.com" autocomplete="off" />
+    </div>
+
+    <div id="sections-container"></div>
+
+  </div>
+
+  <div class="right">
+    <div class="panel-title">Progresso</div>
+
+    <div class="ring-wrap">
+      <div class="ring-container">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+          <circle class="ring-bg" cx="40" cy="40" r="32"/>
+          <circle class="ring-fill" id="ring-fill" cx="40" cy="40" r="32" stroke-dasharray="201.06" stroke-dashoffset="201.06"/>
+        </svg>
+        <div class="ring-text" id="ring-pct">0%</div>
+      </div>
+      <div class="ring-info">
+        <div class="big"><span id="done-n">0</span>/<span id="total-n">0</span></div>
+        <div class="small">ítems completados</div>
+      </div>
+    </div>
+
+    <div class="panel-title">Secciones</div>
+    <div class="status-list" id="status-list"></div>
+
+    <div class="send-wrap">
+      <button class="send-btn" id="send-btn" disabled onclick="handleSend()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Enviar resumen al cliente
+      </button>
+      <div class="hint-text" id="hint-text">Completa todos los ítems y agrega el email del cliente para enviar.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Success -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-card">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">¡Resumen enviado!</div>
+    <div class="success-sub">Se envió el resumen de configuración a<br><span class="success-email" id="success-email-display"></span></div>
+    <button class="new-btn" onclick="resetAll()">Nuevo cliente</button>
+  </div>
+</div>
+
+<script>
+const sections = [
+  {
+    id: "conocimiento",
+    icon: `<svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>`,
+    name: "Base de conocimiento",
+    items: [
+      "¿Preguntas y respuestas bien completadas?",
+      "¿Las categorías tienen sentido para el cliente?",
+      "¿Mensajes cortos y directos al punto?",
+      "¿Cubre las dudas más comunes de los compradores?"
+    ]
+  },
+  {
+    id: "pagos",
+    icon: `<svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+    name: "Pagos",
+    items: [
+      "¿Los métodos de pago están configurados?",
+      "¿Transferencia, tarjeta y otros habilitados correctamente?",
+      "¿El flujo de aprobación de pedidos está claro?"
+    ]
+  },
+  {
+    id: "entrega",
+    icon: `<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
+    name: "Zonas de entrega",
+    items: [
+      "¿Las zonas de entrega están definidas?",
+      "¿Las tarifas y plazos de entrega son correctos?",
+      "¿Las regiones sin cobertura están bloqueadas?"
+    ]
+  },
+  {
+    id: "vendedor",
+    icon: `<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>`,
+    name: "Reglas del vendedor (IA)",
+    items: [
+      "¿El tono de voz es adecuado para el negocio?",
+      "¿Reglas de oferta y promoción configuradas?",
+      "¿Límite de descuento definido y respetado?",
+      "¿El mensaje de bienvenida está personalizado?",
+      "¿Responde bien a objeciones de precio?"
+    ]
+  },
+  {
+    id: "catalogo",
+    icon: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>`,
+    name: "Catálogo",
+    items: [
+      "¿Categorías bien organizadas con nombres claros?",
+      "¿Productos con fotos de calidad?",
+      "¿Descripciones completas (talla, material, uso)?",
+      "¿Precios actualizados?",
+      "¿Productos sin stock están ocultos?"
+    ]
+  },
+  {
+    id: "general",
+    icon: `<svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+    name: "Buenas prácticas generales",
+    items: [
+      "¿Horario de atención configurado?",
+      "¿Mensaje de ausencia / fuera de horario configurado?",
+      "¿Probó una compra completa como cliente?",
+      "¿El vendedor responde en menos de 2 minutos?"
+    ]
+  }
+];
+
+let checked = {};
+
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+function getEmail() { return document.getElementById('client-email').value.trim(); }
+
+function totalItems() { return sections.reduce((a,s) => a + s.items.length, 0); }
+function doneItems() { return Object.values(checked).filter(Boolean).length; }
+
+function sectionDone(si) {
+  return sections[si].items.every((_,ii) => checked[si+'-'+ii]);
+}
+
+function toggleAll(si) {
+  const allDone = sectionDone(si);
+  sections[si].items.forEach((_, ii) => {
+    const id = si+'-'+ii;
+    checked[id] = !allDone;
+    const el = document.getElementById('item-'+id);
+    if (el) el.classList.toggle('checked', !allDone);
+  });
+  updateSection(si);
+  updateStats();
+  updateButton();
+}
+
+function toggle(id) {
+  checked[id] = !checked[id];
+  document.getElementById('item-'+id).classList.toggle('checked', checked[id]);
+  updateSection(parseInt(id.split('-')[0]));
+  updateStats();
+  updateButton();
+}
+
+function updateSection(si) {
+  const total = sections[si].items.length;
+  const done = sections[si].items.filter((_,ii) => checked[si+'-'+ii]).length;
+  const secEl = document.getElementById('sec-'+si);
+  const badge = document.getElementById('badge-'+si);
+  const statusRow = document.getElementById('status-'+si);
+  const statusFrac = document.getElementById('sfrac-'+si);
+
+  const allDone = done === total;
+  secEl.classList.toggle('all-done', allDone);
+  badge.textContent = done + '/' + total;
+  statusRow.classList.toggle('done', allDone);
+  statusFrac.textContent = done + '/' + total;
+  const markBtn = document.getElementById('markall-'+si);
+  if (markBtn) markBtn.textContent = allDone ? 'desmarcar todo' : 'marcar todo';
+}
+
+function updateStats() {
+  const total = totalItems();
+  const done = doneItems();
+  const pct = total ? Math.round(done/total*100) : 0;
+  const circ = 201.06;
+  document.getElementById('ring-pct').textContent = pct + '%';
+  document.getElementById('ring-fill').style.strokeDashoffset = circ - (circ * pct / 100);
+  document.getElementById('done-n').textContent = done;
+  document.getElementById('total-n').textContent = total;
+}
+
+function updateButton() {
+  const allDone = doneItems() === totalItems();
+  const email = getEmail();
+  const valid = allDone && isValidEmail(email);
+  const btn = document.getElementById('send-btn');
+  const hint = document.getElementById('hint-text');
+
+  btn.disabled = !valid;
+  btn.classList.toggle('ready', valid);
+
+  if (valid) {
+    hint.textContent = 'Todo listo. El cliente recibirá un resumen de la configuración.';
+  } else if (!isValidEmail(email) && doneItems() === totalItems()) {
+    hint.textContent = 'Agrega el email del cliente para enviar.';
+  } else if (isValidEmail(email) && doneItems() < totalItems()) {
+    hint.textContent = 'Completa todos los ítems para habilitar el envío.';
+  } else {
+    hint.textContent = 'Completa todos los ítems y agrega el email del cliente para enviar.';
+  }
+}
+
+async function handleSend() {
+  const email = getEmail();
+  if (!isValidEmail(email) || doneItems() < totalItems()) return;
+
+  const btn = document.getElementById('send-btn');
+  btn.classList.remove('ready');
+  btn.classList.add('sending');
+  btn.disabled = true;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviando...`;
+
+  try {
+    const payload = {
+      clientEmail: email,
+      sections: sections.map((sec, si) => ({
+        name: sec.name,
+        items: sec.items
+      }))
+    };
+
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error('Error al enviar');
+
+    document.getElementById('success-email-display').textContent = email;
+    document.getElementById('success-overlay').classList.add('show');
+  } catch (err) {
+    alert('Hubo un error al enviar el email. Intenta de nuevo.');
+  } finally {
+    btn.classList.remove('sending');
+    btn.classList.add('ready');
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar resumen al cliente`;
+  }
+}
+
+function buildEmailBody(email) {
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  let body = `Hola,\n\nNos complace informarte que la configuración de tu tienda ha sido revisada y completada exitosamente.\n\nFecha de revisión: ${dateStr}\n\n`;
+  body += `A continuación el resumen de lo que fue configurado:\n\n`;
+
+  sections.forEach((sec, si) => {
+    body += `— ${sec.name.toUpperCase()} —\n`;
+    sec.items.forEach((item, ii) => {
+      body += `✓ ${item}\n`;
+    });
+    body += `\n`;
+  });
+
+  body += `Tu vendedor ya está listo para atender a tus clientes.\n\n`;
+  body += `Si tienes alguna duda, no dudes en contactarnos.\n\nSaludos,\nEquipo de Customer Success`;
+  return body;
+}
+
+function resetAll() {
+  checked = {};
+  document.getElementById('client-email').value = '';
+  document.getElementById('success-overlay').classList.remove('show');
+  render();
+}
+
+function render() {
+  const container = document.getElementById('sections-container');
+  container.innerHTML = '';
+  const statusList = document.getElementById('status-list');
+  statusList.innerHTML = '';
+
+  sections.forEach((sec, si) => {
+    // Section
+    const el = document.createElement('div');
+    el.className = 'section';
+    el.id = 'sec-'+si;
+
+    const itemsHTML = sec.items.map((item, ii) => {
+      const id = si+'-'+ii;
+      return `<div class="item" id="item-${id}" onclick="toggle('${id}')">
+        <div class="cb"></div>
+        <span class="item-text">${item}</span>
+      </div>`;
+    }).join('');
+
+    el.innerHTML = `
+      <div class="section-header">
+        <div class="section-icon">${sec.icon}</div>
+        <span class="section-name">${sec.name}</span>
+        <button class="mark-all-btn" id="markall-${si}" onclick="event.stopPropagation(); toggleAll(${si})">marcar todo</button>
+        <span class="section-badge" id="badge-${si}">0/${sec.items.length}</span>
+      </div>
+      <div class="items-list">${itemsHTML}</div>`;
+    container.appendChild(el);
+
+    // Status row
+    const row = document.createElement('div');
+    row.className = 'status-row';
+    row.id = 'status-'+si;
+    row.innerHTML = `<div class="status-dot"></div>
+      <span class="status-name">${sec.name}</span>
+      <span class="status-frac" id="sfrac-${si}">0/${sec.items.length}</span>`;
+    statusList.appendChild(row);
+  });
+
+  updateStats();
+  updateButton();
+}
+
+// Date
+const d = new Date();
+document.getElementById('topbar-date').textContent = d.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short' });
+
+// Email input watcher
+document.getElementById('client-email').addEventListener('input', updateButton);
+
+render();
+</script>
+</body>
+</html>
