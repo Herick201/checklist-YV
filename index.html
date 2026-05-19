@@ -308,9 +308,98 @@
     color: var(--text);
   }
   .new-btn:hover { background: var(--surface2); }
+
+  /* LOGIN */
+  .login-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    align-items: center; justify-content: center;
+  }
+  .login-overlay.show { display: flex; }
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 48px;
+    text-align: center;
+    width: 360px;
+  }
+  .login-logo {
+    width: 52px; height: 52px;
+    background: var(--accent);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .login-logo svg { width: 26px; height: 26px; stroke: white; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .login-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .login-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  .login-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 11px 14px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    outline: none;
+    text-align: center;
+    letter-spacing: 0.1em;
+    transition: border-color 0.15s;
+    margin-bottom: 12px;
+  }
+  .login-input:focus { border-color: var(--accent); background: white; }
+  .login-input.error { border-color: var(--warn); background: var(--warn-light); animation: shake 0.3s; }
+  .login-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--accent);
+    color: white;
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .login-btn:hover { background: var(--accent-dark); }
+  .login-error { font-size: 12px; color: var(--warn); margin-top: 8px; min-height: 16px; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  /* LOGOUT BTN */
+  .logout-btn {
+    font-size: 12px; color: var(--text-light);
+    background: none; border: none; cursor: pointer;
+    margin-left: auto; padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+  }
+  .logout-btn:hover { color: var(--warn); background: var(--warn-light); }
 </style>
 </head>
 <body>
+
+<!-- Login -->
+<div class="login-overlay show" id="login-overlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    </div>
+    <div class="login-title">Yavendio CS</div>
+    <div class="login-sub">Ingresa la contraseña para continuar</div>
+    <input class="login-input" type="password" id="login-input" placeholder="••••••••••" onkeydown="if(event.key==='Enter') doLogin()" />
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
 
 <div class="topbar">
   <div class="topbar-logo">
@@ -318,6 +407,7 @@
   </div>
   <div class="topbar-title">Checklist · Buen Vendedor</div>
   <div class="topbar-sub" id="topbar-date"></div>
+  <button class="logout-btn" onclick="doLogout()">Salir</button>
 </div>
 
 <div class="layout">
@@ -375,6 +465,41 @@
 </div>
 
 <script>
+// AUTH
+const PASSWORD = 'Yavendi0_2026';
+const AUTH_KEY = 'yv_cs_auth';
+
+function checkAuth() {
+  if (localStorage.getItem(AUTH_KEY) === 'ok') {
+    document.getElementById('login-overlay').classList.remove('show');
+  }
+}
+
+function doLogin() {
+  const val = document.getElementById('login-input').value;
+  const inp = document.getElementById('login-input');
+  const err = document.getElementById('login-error');
+  if (val === PASSWORD) {
+    localStorage.setItem(AUTH_KEY, 'ok');
+    document.getElementById('login-overlay').classList.remove('show');
+    err.textContent = '';
+  } else {
+    inp.classList.add('error');
+    err.textContent = 'Contraseña incorrecta';
+    setTimeout(() => inp.classList.remove('error'), 400);
+    inp.value = '';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem(AUTH_KEY);
+  document.getElementById('login-overlay').classList.add('show');
+  document.getElementById('login-input').value = '';
+  document.getElementById('login-error').textContent = '';
+}
+
+checkAuth();
+
 const sections = [
   {
     id: "conocimiento",
