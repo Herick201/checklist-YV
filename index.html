@@ -466,8 +466,13 @@
 
 <script>
 // AUTH
-const PASSWORD = 'Yavendi0_2026';
+const PASSWORD_HASH = 'aa6b38b3bb46bf23d9af8b56dad5465c07aa177c15c9d26fc58a527e10a1dd1a';
 const AUTH_KEY = 'yv_cs_auth';
+
+async function hashPassword(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
 
 function checkAuth() {
   if (localStorage.getItem(AUTH_KEY) === 'ok') {
@@ -475,11 +480,12 @@ function checkAuth() {
   }
 }
 
-function doLogin() {
+async function doLogin() {
   const val = document.getElementById('login-input').value;
   const inp = document.getElementById('login-input');
   const err = document.getElementById('login-error');
-  if (val === PASSWORD) {
+  const hash = await hashPassword(val);
+  if (hash === PASSWORD_HASH) {
     localStorage.setItem(AUTH_KEY, 'ok');
     document.getElementById('login-overlay').classList.remove('show');
     err.textContent = '';
